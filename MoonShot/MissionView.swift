@@ -15,72 +15,54 @@ struct MissionView: View {
     
     let mission: Mission
     let crew: [CrewMember]
+    let astronaut: [String: Astronaut]
     
     var body: some View {
         ScrollView {
-            VStack {
-                Image(mission.image)
-                    .resizable()
-                    .scaledToFit()
-                    .containerRelativeFrame(.horizontal) { width, axis in
-                        width * 0.6
+                VStack {
+                    Image(mission.image)
+                        .resizable()
+                        .scaledToFit()
+                        .containerRelativeFrame(.horizontal) { width, axis in
+                            width * 0.6
+                        }
+                        .padding()
+                    VStack {
+                        Text(mission.formattedLaunchDate)
+                            .font(.title.bold())
+                            .foregroundStyle(.white)
                     }
-                
-                
-                VStack(alignment: .leading) {
-                    Rectangle()
-                        .frame(height: 2)
-                        .foregroundStyle(.lightBackground)
-                        .padding(.vertical)
                     
-                    Text("Mission Highlights")
-                        .font(.title.bold())
-                        .padding(.bottom, 5)
                     
-                    Text(mission.description)
-                    
-                    Rectangle()
-                        .frame(height: 2)
-                        .foregroundStyle(.lightBackground)
-                        .padding(.vertical)
-                    
-                    Text("Crew")
-                        .font(.title.bold())
-                        .padding(.bottom, 5)
-                }
-                .padding(.horizontal)
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(crew, id: \.role) { crewMember in
-                            NavigationLink {
-                                AstronautView(astronaut: crewMember.astronaut)
-                            } label: {
-                                HStack {
-                                    Image(crewMember.astronaut.id)
-                                        .resizable()
-                                        .frame(width: 104, height: 72)
-                                        .clipShape(.capsule)
-                                        .overlay(
-                                            Capsule()
-                                                .strokeBorder(.white, lineWidth: 1)
-                                        )
-                                    VStack(alignment: .leading) {
-                                        Text(crewMember.astronaut.name)
-                                            .foregroundStyle(.white)
-                                            .font(.headline)
-                                        
-                                        Text(crewMember.role)
-                                            .foregroundStyle(.white.opacity(0.5))
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
+                    VStack(alignment: .leading) {
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundStyle(.lightBackground)
+                            .padding(.vertical)
+                        
+                        Text("Mission Highlights")
+                            .font(.title.bold())
+                            .padding(.bottom, 5)
+                        
+                        Text(mission.description)
+                        
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundStyle(.lightBackground)
+                            .padding(.vertical)
+                        
+                        NavigationLink {
+                            ListView(mission: mission, astronauts: astronaut)
+                        } label: {
+                            Text("Crew")
+                                .font(.title)
+                                .padding()
+                                .foregroundStyle(.white)
                         }
                     }
                 }
-            }
-            .padding(.bottom)
+                .padding(.horizontal)
+            
         }
         .navigationTitle(mission.displayName)
         .navigationBarTitleDisplayMode(.inline)
@@ -88,6 +70,7 @@ struct MissionView: View {
     }
     init(mission: Mission, astronauts: [String: Astronaut]) {
         self.mission = mission
+        self.astronaut = astronauts
 
         self.crew = mission.crew.map { member in
             if let astronaut = astronauts[member.name] {
